@@ -7,44 +7,25 @@ import org.apache.hadoop.hbase.filter.PrefixFilter
 import org.apache.hadoop.hbase.client.Result
 import org.apache.hadoop.hbase.client.Delete
 import org.apache.hadoop.hbase.KeyValue
+import org.apache.commons.codec.binary.Hex
 
 def conf = HBaseConfiguration.create()
 
-if (args.size() < 3) {
-    println "Scans <table>/<family> matching <prefix> up to <limit>"
-    println "Usage: ${getClass().simpleName} <table> <family> <prefix> <limit=100>"
+if (args.size() < 2) {
+    println "Deletes row matching <row> bytes"
+    println "Usage: ${getClass().simpleName} <table> <row>"
     System.exit(1)
 }
 
 
 def tableName = args[0]
-def family = args[1]
-def prefix = args[2]
-def limit = args.length > 3 ? Integer.parseInt(args[3]) : 100
+def row = args[1]
 
 def table = new HTable(conf, Bytes.toBytes(tableName))
 
+println "Deleting ${tableName}/${row}"
 
-def prefixBytes = Bytes.toBytesBinary(prefix)
-def familyBytes = Bytes.toBytes(family)
+def delete = new Delete(Bytes.toBytesBinary(row))
 
-println "Scanning ${tableName}/${family} with prefix ${Bytes.toStringBinary(prefixBytes)}"
-
-def scan = new Scan(prefixBytes, new PrefixFilter(prefixBytes))
-scan.addFamily(familyBytes)
-
-def rows = 0
-def scanner = table.getScanner(scan)
-for (Result r : scanner) {
-    println Bytes.toStringBinary(r.getRow())
-    r.getColumn(familyBytes).each {KeyValue cell ->
-        println "\t${Bytes.toStringBinary(cell.key)}=${Bytes.toStringBinary(cell.value)}"
-    }
-    if (++rows >= limit) {
-        break;
-    }
-}
-scanner.close()
+table.delete(delete)
 table.close()
-
-println "Found ${rows} rows."
