@@ -23,8 +23,10 @@ def metaTable = new HTable(conf, HConstants.META_TABLE_NAME)
 def prefixBytes = Bytes.toBytes(prefix)
 
 def deletes = []
-metaTable.getScanner(new Scan(prefixBytes, new PrefixFilter(prefixBytes))).each {Result r ->
-    deletes << new Delete(r.row)
+metaTable.getScanner(new Scan()).each {Result r ->
+    if (Bytes.toString(r.row).startsWith(prefix)) {
+        deletes << new Delete(r.row)
+    }
 }
 
 if (deletes) {
