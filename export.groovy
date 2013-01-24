@@ -48,15 +48,23 @@ def scanner = table.getScanner(scan)
 for (Result r : scanner) {
     r.getFamilyMap(familyBytes).each {byte[] key, byte[] value ->
 	try {
-	def twitter = Bytes.toString(r.row).split("\t")[1]	
+        def rowkey = Bytes.toString(r.row).split("\t")
+
+        if(rowkey.size() < 2) {
+		System.err.println "Invalid row key: $rowkey".toString()
+		return 
+	}
+
+	def account = rowkey[1]	
 	def email = Bytes.toString(key)?.substring(2)?.trim()?.toLowerCase()
 	def hashed = new BigInteger(1, md5.digest(email.bytes)).toString(16).padLeft(32, '0')
-        println "${twitter}\t${hashed}\t${email}"
+        println "${account}\t${hashed}\t${email}".toString()
         if (++edges % 1000 == 0) {
-    	    System.err.println "${edges}\t${twitter}\t${email}"
+    	    System.err.println "${edges}\t${account}\t${email}".toString()
         }
 	} catch (Throwable ex) {
-	    System.err.println "${new Date()} EXCEPTION", ex
+	    System.err.println "${new Date()} EXCEPTION".toString()
+            ex.printStackTrace(System.err)
 	}
     }
     if (++rows >= limit && limit > 0) {
