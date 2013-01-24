@@ -14,7 +14,7 @@ import java.security.MessageDigest
 def conf = HBaseConfiguration.create()
 
 if (args.size() < 3) {
-    println "Scans <table>/<family> matching <prefix> up to <limit> exporting CSV containing row key, email md5 hash, email"
+    println "Scans <table>/<family> matching <prefix> up to <limit> exporting TSV containing row key, email md5 hash, email"
     println "Usage: ${getClass().simpleName} <table> <family> <prefix> <limit=100>"
     println "Example: ./hbase_groovy.sh export.groovy contacts_graph_20121231 c '\\x00\\xFFfacebook\\x09' 0 | gzip > /mnt/core/targusexport/facebook-export.tsv.gz"
     // Example: ./hbase_groovy.sh export.groovy contacts_graph_20121231 c '\x00\xFFfacebook\x09' 0 | gzip > /mnt/core/targusexport/facebook-export.tsv.gz
