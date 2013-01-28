@@ -44,6 +44,7 @@ def familyBytes = Bytes.toBytes(family)
 System.err.println "Scanning ${tableName}/${family} with prefix ${Bytes.toStringBinary(prefixBytes)}"
 
 def filter = new FilterList(FilterList.Operator.MUST_PASS_ALL)
+filter.addFilter new PrefixFilter(prefixBytes)
 
 // \\0x02 - email contact field abbriviation, the column name contains the
 // email address 
